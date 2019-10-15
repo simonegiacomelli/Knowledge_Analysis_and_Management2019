@@ -7,7 +7,7 @@ def main():
     with open("tree.py", "r") as source:
         tree = ast.parse(source.read())
 
-    onto = get_ontology("http://usi.ch/giacomelli/proj1.owl")
+    onto = get_ontology("http://usi.ch/giacomelli/Knowledge_Analysis_and_Management.owl")
 
     analyzer = Analyzer(onto)
     analyzer.visit(tree)

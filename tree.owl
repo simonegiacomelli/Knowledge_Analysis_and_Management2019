@@ -3,10 +3,10 @@
          xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
          xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
          xmlns:owl="http://www.w3.org/2002/07/owl#"
-         xml:base="http://usi.ch/giacomelli/proj1.owl"
-         xmlns="http://usi.ch/giacomelli/proj1.owl#">
+         xml:base="http://usi.ch/giacomelli/Knowledge_Analysis_and_Management.owl"
+         xmlns="http://usi.ch/giacomelli/Knowledge_Analysis_and_Management.owl#">
 
-<owl:Ontology rdf:about="http://usi.ch/giacomelli/proj1.owl"/>
+<owl:Ontology rdf:about="http://usi.ch/giacomelli/Knowledge_Analysis_and_Management.owl"/>
 
 <owl:ObjectProperty rdf:about="#body"/>
 
