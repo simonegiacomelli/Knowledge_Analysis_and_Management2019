@@ -1,7 +1,6 @@
 import ast
-from pprint import pprint
+
 from owlready2 import *
-import types
 
 
 def main():
@@ -13,7 +12,7 @@ def main():
     analyzer = Analyzer(onto)
     analyzer.visit(tree)
 
-    onto.save('onto.owl')
+    onto.save('tree.owl')
 
 
 class Analyzer(ast.NodeVisitor):
