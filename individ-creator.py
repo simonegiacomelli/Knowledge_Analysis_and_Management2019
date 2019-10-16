@@ -1,10 +1,20 @@
-from owlready2 import *
-import os
-import sys
 from glob import glob
 
 import javalang
 from owlready2 import *
+
+
+# TODO
+## make sure that all
+#  individuals are declared to be different by calling AllDifferent (otherwise counting is not possible during
+#  bad smell detection)
+
+# TODO refactoring in OOP?
+def params_to_str(method_declaration):
+    res = ','.join([p.type.name for p in method_declaration.parameters])
+    if len(method_declaration.parameters) > 0:
+        print(res)
+    return res
 
 
 def main():
@@ -24,20 +34,34 @@ def main():
 
     def process_class(class_node, package_name):
         class_instance = onto["ClassDeclaration"]()
-        fqdn = package_name + '.' + class_node.name
-        print(f'  processing {fqdn}')
-        class_instance.name = fqdn
+        class_fqn = package_name + '.' + class_node.name
+        print(f'  processing {class_fqn}')
+        class_instance.name = class_fqn
         class_instance.jname.append(class_node.name)
         for dec in class_node.body:
             type_name = type(dec).__name__
             if type_name == 'MethodDeclaration':
                 dec_instance = onto[type_name]()
-                dec_instance.jname.append(dec.name)
                 class_instance.body.append(dec_instance)
+                method_fqn = class_fqn + '.' + dec.name + f'({params_to_str(dec)})'
+                print(f'     method {method_fqn}')
+                dec_instance.jname.append(dec.name)
+                dec_instance.name = method_fqn
             elif type_name == 'FieldDeclaration':
-                pass
+                for f in dec.declarators:
+                    field_fqn = class_fqn + '.' + f.name + '[field]'
+                    print(f'     field {field_fqn}')
+                    dec_instance = onto[type_name]()
+                    class_instance.body.append(dec_instance)
+                    dec_instance.jname.append(f.name)
+                    dec_instance.name = field_fqn
             elif type_name == 'ConstructorDeclaration':
-                pass
+                constructor_fqn = class_fqn + '.$constructor$.' + dec.name + f'({params_to_str(dec)})'
+                print(f'     constructor {constructor_fqn}')
+                dec_instance = onto[type_name]()
+                class_instance.body.append(dec_instance)
+                dec_instance.jname.append(dec.name)
+                dec_instance.name = constructor_fqn
 
     def process_types(types, package_name):
         for node in types:
@@ -53,11 +77,6 @@ def main():
 
         process_types(tree.types, tree.package.name)
 
-    # TODO ##for each class member (MethodDeclaration/FieldDeclaration/ConstructorDeclaration) in the "body" of a
-    #  ClassDeclaration, create a MethodDeclaration/FieldDeclaration/ ConstructorDeclaration instance and add (
-    #  append) the member instance to the property "body" of the ClassDeclaration instance ## make sure that all
-    #  individuals are declared to be different by calling AllDifferent (otherwise counting is not possible during
-    #  bad smell detection)
     onto.save('tree2.owl')
 
 
