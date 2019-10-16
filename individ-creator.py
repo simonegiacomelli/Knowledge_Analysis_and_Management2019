@@ -11,7 +11,7 @@ def main():
     onto = get_ontology("file://tree.owl")
     onto.load()
 
-    source_folder_path = "./android-chess/app/src/main"
+    source_folder_path = "./android-chess/app/src/main/java"
     if len(sys.argv) > 1:
         source_folder_path = sys.argv[1]
 
@@ -20,6 +20,30 @@ def main():
         exit(0)
 
     source_files_path = [y for x in os.walk(source_folder_path) for y in glob(os.path.join(x[0], '*.java'))]
+    filter_types = {'ClassDeclaration', 'MethodDeclaration', 'FieldDeclaration', 'ConstructorDeclaration'}
+
+    def process_class(class_node, package_name):
+        class_instance = onto["ClassDeclaration"]()
+        fqdn = package_name + '.' + class_node.name
+        print(f'  processing {fqdn}')
+        class_instance.name = fqdn
+        class_instance.jname.append(class_node.name)
+        for dec in class_node.body:
+            type_name = type(dec).__name__
+            if type_name == 'MethodDeclaration':
+                dec_instance = onto[type_name]()
+                dec_instance.jname.append(dec.name)
+                class_instance.body.append(dec_instance)
+            elif type_name == 'FieldDeclaration':
+                pass
+            elif type_name == 'ConstructorDeclaration':
+                pass
+
+    def process_types(types, package_name):
+        for node in types:
+            if type(node) is javalang.tree.ClassDeclaration:
+                process_class(node, package_name)
+                process_types(node.body, package_name + '.' + node.name)
 
     for source_path in source_files_path:
         with open(source_path, "r") as file_handle:
@@ -27,15 +51,7 @@ def main():
         print('parsing', source_path)
         tree = javalang.parse.parse(source)
 
-        result = []
-        for tree_path, node in tree:
-            if type(node) is javalang.tree.ClassDeclaration:
-                # and node.name+'.java' == os.path.basename(source_path):
-                ## keeping the second condition yields to only 3 god classess. so I removed it
-                # df.loc[node.name] = [len(node.methods), source_path.replace(source_folder_path, "")]
-                cd = onto["ClassDeclaration"]()
-                # cd.jname = node.name
-                cd.jname.append(node.name)
+        process_types(tree.types, tree.package.name)
 
     # TODO ##for each class member (MethodDeclaration/FieldDeclaration/ConstructorDeclaration) in the "body" of a
     #  ClassDeclaration, create a MethodDeclaration/FieldDeclaration/ ConstructorDeclaration instance and add (
