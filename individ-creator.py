@@ -34,7 +34,7 @@ def main():
     onto = get_ontology("file://tree.owl")
     onto.load()
 
-    source_folder_path = "./android-chess/app/src/main/java"
+    source_folder_path = "./android-chess/app/src/main/java/jwtc/chess"
     if len(sys.argv) > 1:
         source_folder_path = sys.argv[1]
 
@@ -43,11 +43,15 @@ def main():
         exit(0)
 
     source_files_path = [y for x in os.walk(source_folder_path) for y in glob(os.path.join(x[0], '*.java'))]
-    filter_types = {'ClassDeclaration', 'MethodDeclaration', 'FieldDeclaration', 'ConstructorDeclaration'}
     pp = PrettyPrint()
 
     def process_callable_declaration(callable, callable_instance):
         pp.inc()
+
+        for dec in callable.parameters:
+            type_name = type(dec).__name__
+            dec_instance = onto[type_name]()
+            callable_instance.parameters.append(dec_instance)
 
         if callable.body is None:
             pp.print('None!')
@@ -96,8 +100,8 @@ def main():
                 process_callable_declaration(dec, dec_instance)
             else:
                 pass
-                #pp.print(f'else {type_name}')
-                #process_types(dec, class_fqn)
+                # pp.print(f'else {type_name}')
+                # process_types(dec, class_fqn)
 
         pp.dec()
         pp.dec()
