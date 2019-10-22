@@ -12,8 +12,6 @@ from owlready2 import *
 # TODO refactoring in OOP?
 def params_to_str(method_declaration):
     res = ','.join([p.type.name for p in method_declaration.parameters])
-    if len(method_declaration.parameters) > 0:
-        print(res)
     return res
 
 
@@ -62,6 +60,9 @@ def main():
                 class_instance.body.append(dec_instance)
                 dec_instance.jname.append(dec.name)
                 dec_instance.name = constructor_fqn
+            else:
+                print(f'     else {type_name}')
+
 
     def process_types(types, package_name):
         for node in types:
