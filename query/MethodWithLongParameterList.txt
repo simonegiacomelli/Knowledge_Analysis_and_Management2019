@@ -7,7 +7,7 @@ SELECT ?cn ?mn (COUNT(*) AS ?tot) WHERE {
             ?c a tree:ClassDeclaration .
             ?c tree:jname ?cn .
             ?c tree:body ?m .
-            ?m a tree:ConstructorDeclaration .
+            ?m a tree:MethodDeclaration .
             ?m tree:jname ?mn .
               ?m tree:parameters ?pa .
         }
