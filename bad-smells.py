@@ -16,6 +16,9 @@ query1 = """SELECT ?c WHERE {
       ?c a tree:ClassDeclaration .
       }
 """
+
+#TODO fix DataClass query
+
 q = sq.prepareQuery(
     query1,
     initNs={"tree": "http://usi.ch/giacomelli/Knowledge_Analysis_and_Management.owl#"})
