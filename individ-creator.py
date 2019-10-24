@@ -34,7 +34,7 @@ def main():
     onto = get_ontology("file://tree.owl")
     onto.load()
 
-    source_folder_path = "./android-chess/app/src/main/java/jwtc/chess"
+    source_folder_path = "./chess"
     if len(sys.argv) > 1:
         source_folder_path = sys.argv[1]
 
