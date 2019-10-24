@@ -9,7 +9,7 @@ SELECT ?cn ?mn (COUNT(*) AS ?tot) WHERE {
             ?c tree:body ?m .
             ?m a tree:ConstructorDeclaration .
             ?m tree:jname ?mn .
-              ?m tree:parameters ?pa .
+            ?m tree:parameters ?pa .
         }
 
 GROUP BY ?cn ?mn
