@@ -58,11 +58,18 @@ def main():
         if callable.body is None:
             pp.print('None!')
         else:
-            stats = [s for s in callable.body if isinstance(s, javalang.tree.Statement)]
-            for dec in stats:
-                type_name = type(dec).__name__
-                dec_instance = onto[type_name]()
-                callable_instance.body.append(dec_instance)
+            def add_statements(stmts):
+                if hasattr(stmts, 'statements'):
+                    stmts = stmts.statements
+                stats = [s for s in stmts if isinstance(s, javalang.tree.Statement)]
+                for dec in stats:
+                    type_name = type(dec).__name__
+                    dec_instance = onto[type_name]()
+                    callable_instance.body.append(dec_instance)
+                    if hasattr(dec, 'body'):
+                        add_statements(dec.body)
+
+            add_statements(callable.body)
 
         pp.dec()
 
