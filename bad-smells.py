@@ -32,7 +32,8 @@ def main():
         yes_setget, no_setget = data_class_queries()
         for cn in query_to_set(yes_setget) - query_to_set(no_setget):
             log(f"  {cn} :: ()")
-
+        log()
+        
         # the rest of the bad smells
         for name, query in queries().items():
             log(name + ':')
