@@ -1,12 +1,18 @@
 import rdflib
 import rdflib.plugins.sparql as sq
 
+g = rdflib.Graph()
+g.load("tree2.owl")
+
+
+def rdfquery(query):
+    namespace = "http://usi.ch/giacomelli/Knowledge_Analysis_and_Management.owl#"
+    q = sq.prepareQuery(query, initNs={"tree": namespace})
+    return g.query(q)
+
 
 def main():
-    g = rdflib.Graph()
-    result = g.load("tree2.owl")
-
-    query1 = """SELECT ?mn ?cn (COUNT(*) AS ?tot) WHERE {
+    query2 = """SELECT ?mn ?cn (COUNT(*) AS ?tot) WHERE {
                 ?c a tree:ClassDeclaration .
                 ?c tree:jname ?cn .
                 ?c tree:body ?m .
@@ -18,17 +24,19 @@ def main():
           ?c a tree:ClassDeclaration .
           }
     """
+    items = {'test': query1}.items()
+    items = queries().items()
+    for idx, (name, query) in enumerate(items):
+        if idx != 0:
+            continue
 
-    # TODO fix DataClass query
+        print(name)
 
-    q = sq.prepareQuery(
-        query1,
-        initNs={"tree": "http://usi.ch/giacomelli/Knowledge_Analysis_and_Management.owl#"})
-    print("All methods: ")
-
-    for row in g.query(q):
-        print(row.c)
-    print()
+        result = rdfquery(query)
+        for row in result:
+            print('  ' + row.cn + ' ' + row.mn + ' ' + row.tot)
+        print()
+        break
 
 
 def queries():
@@ -39,7 +47,7 @@ def queries():
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     PREFIX tree: <http://usi.ch/giacomelli/Knowledge_Analysis_and_Management.owl#>
-    SELECT ?cn ?mn (COUNT(*) AS ?tot) WHERE {
+    SELECT ?cn ?mn (COUNT(?st) AS ?tot) WHERE {
                 ?c a tree:ClassDeclaration .
                 ?c tree:jname ?cn .
                 ?c tree:body ?m .
@@ -50,7 +58,7 @@ def queries():
             }
     
     GROUP BY ?cn ?mn
-    HAVING (?tot >= 20)
+    HAVING (COUNT(?st) >= 20)
     ORDER BY DESC(?tot)
     """
         , 'LongConstructor': """
@@ -59,7 +67,7 @@ def queries():
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     PREFIX tree: <http://usi.ch/giacomelli/Knowledge_Analysis_and_Management.owl#>
-    SELECT ?cn ?mn (COUNT(*) AS ?tot) WHERE {
+    SELECT ?cn ?mn (COUNT(?st) AS ?tot) WHERE {
                 ?c a tree:ClassDeclaration .
                 ?c tree:jname ?cn .
                 ?c tree:body ?m .
@@ -70,7 +78,7 @@ def queries():
             }
     
     GROUP BY ?cn ?mn
-    HAVING (?tot >= 20)
+    HAVING (COUNT(?st) >= 20)
     ORDER BY DESC(?tot)
     """
         , 'LargeClass': """
@@ -168,8 +176,8 @@ def queries():
     HAVING (?tot >= 5)
     ORDER BY DESC(?tot)
     """
-        , 'DataClass': """
-    """
+        #     , 'DataClass': """
+        # """
     }
 
 
