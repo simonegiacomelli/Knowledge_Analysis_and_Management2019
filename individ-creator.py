@@ -49,18 +49,11 @@ def main():
         if callable.body is None:
             pp.print('None!')
         else:
-            def add_statements(stmts):
-                if hasattr(stmts, 'statements'):
-                    stmts = stmts.statements
-                stats = [s for s in stmts if isinstance(s, javalang.tree.Statement)]
-                for dec in stats:
-                    type_name = type(dec).__name__
+            for path, st in callable:
+                if isinstance(st, javalang.parser.tree.Statement):
+                    type_name = type(st).__name__
                     dec_instance = onto[type_name]()
                     callable_instance.body.append(dec_instance)
-                    if hasattr(dec, 'body'):
-                        add_statements(dec.body)
-
-            add_statements(callable.body)
 
         pp.dec()
 
@@ -81,6 +74,8 @@ def main():
                 pp.print(f'method {method_fqn}')
                 dec_instance.jname.append(dec.name)
                 dec_instance.name = method_fqn
+                # if method_fqn == 'jwtc.chess.GameControl.requestMove(String,Matcher,String,String)':
+                #     breakpoint()
                 process_callable_declaration(dec, dec_instance)
             elif type_name == 'FieldDeclaration':
                 for f in dec.declarators:
