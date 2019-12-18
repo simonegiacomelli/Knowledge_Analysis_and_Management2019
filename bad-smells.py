@@ -11,32 +11,29 @@ def rdfquery(query):
     return g.query(q)
 
 
+def get(d, name):
+    if name in d.labels:
+        return d[name]
+    return ''
+
+
 def main():
-    query2 = """SELECT ?mn ?cn (COUNT(*) AS ?tot) WHERE {
-                ?c a tree:ClassDeclaration .
-                ?c tree:jname ?cn .
-                ?c tree:body ?m .
-                ?m a tree:MethodDeclaration .
-                ?m tree:jname ?mn .
-            } GROUP BY ?m"""
+    with open('log.txt', 'w') as f:
+        def log(*args):
+            print(*args)
+            f.write(' '.join(args) + '\n')
 
-    query1 = """SELECT ?c WHERE {
-          ?c a tree:ClassDeclaration .
-          }
-    """
-    items = {'test': query1}.items()
-    items = queries().items()
-    for idx, (name, query) in enumerate(items):
-        if idx != 0:
-            continue
+        items = queries().items()
+        for idx, (name, query) in enumerate(items):
+            # if name != 'LargeClass':
+            #     continue
 
-        print(name)
+            log(name + ':')
 
-        result = rdfquery(query)
-        for row in result:
-            print('  ' + row.cn + ' ' + row.mn + ' ' + row.tot)
-        print()
-        break
+            result = rdfquery(query)
+            for r in result:
+                log(f"  {get(r, 'cn')} :: {get(r, 'mn')} ({get(r, 'tot')})")
+            log()
 
 
 def queries():
@@ -47,7 +44,7 @@ def queries():
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     PREFIX tree: <http://usi.ch/giacomelli/Knowledge_Analysis_and_Management.owl#>
-    SELECT ?cn ?mn (COUNT(?st) AS ?tot) WHERE {
+    SELECT ?cn ?mn (COUNT(*) AS ?tot) WHERE {
                 ?c a tree:ClassDeclaration .
                 ?c tree:jname ?cn .
                 ?c tree:body ?m .
@@ -58,8 +55,8 @@ def queries():
             }
     
     GROUP BY ?cn ?mn
-    HAVING (COUNT(?st) >= 20)
-    ORDER BY DESC(?tot)
+    HAVING (COUNT(*) >= 20)
+    ORDER BY DESC(COUNT(*))
     """
         , 'LongConstructor': """
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -79,7 +76,7 @@ def queries():
     
     GROUP BY ?cn ?mn
     HAVING (COUNT(?st) >= 20)
-    ORDER BY DESC(?tot)
+    ORDER BY DESC(COUNT(*))
     """
         , 'LargeClass': """
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -95,8 +92,8 @@ def queries():
             }
     
     GROUP BY ?cn
-    HAVING (?tot >= 10)
-    ORDER BY DESC(?tot)
+    HAVING (COUNT(*)  >= 10)
+    ORDER BY DESC(COUNT(*))
     """
         , 'MethodWithSwitch': """
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -115,8 +112,8 @@ def queries():
             }
     
     GROUP BY ?cn ?mn
-    HAVING (?tot >= 1)
-    ORDER BY DESC(?tot)
+    HAVING (COUNT(*) >= 1)
+    ORDER BY DESC(COUNT(*))
     """
         , 'ConstructorWithSwitch': """
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -135,8 +132,8 @@ def queries():
             }
     
     GROUP BY ?cn ?mn
-    HAVING (?tot >= 1)
-    ORDER BY DESC(?tot)
+    HAVING (COUNT(*) >= 1)
+    ORDER BY DESC(COUNT(*))
     """
         , 'MethodWithLongParameterList': """
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -154,8 +151,8 @@ def queries():
             }
     
     GROUP BY ?cn ?mn
-    HAVING (?tot >= 5)
-    ORDER BY DESC(?tot)
+    HAVING (COUNT(*) >= 5)
+    ORDER BY DESC(COUNT(*))
     """
         , 'ConstructorWithLongParameterList': """
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -173,8 +170,8 @@ def queries():
             }
     
     GROUP BY ?cn ?mn
-    HAVING (?tot >= 5)
-    ORDER BY DESC(?tot)
+    HAVING (COUNT(*) >= 5)
+    ORDER BY DESC(COUNT(*))
     """
         #     , 'DataClass': """
         # """
