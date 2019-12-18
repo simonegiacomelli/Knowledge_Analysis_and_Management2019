@@ -74,8 +74,6 @@ def main():
                 pp.print(f'method {method_fqn}')
                 dec_instance.jname.append(dec.name)
                 dec_instance.name = method_fqn
-                # if method_fqn == 'jwtc.chess.GameControl.requestMove(String,Matcher,String,String)':
-                #     breakpoint()
                 process_callable_declaration(dec, dec_instance)
             elif type_name == 'FieldDeclaration':
                 for f in dec.declarators:
