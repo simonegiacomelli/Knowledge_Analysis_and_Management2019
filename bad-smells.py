@@ -17,17 +17,24 @@ def get(d, name):
     return ''
 
 
+def query_to_set(q):
+    return {r.cn for r in rdfquery(q)}
+
+
 def main():
     with open('log.txt', 'w') as f:
         def log(*args):
             print(*args)
             f.write(' '.join(args) + '\n')
 
-        items = queries().items()
-        for idx, (name, query) in enumerate(items):
-            if name != 'DataClass':
-                continue
+        # DataClass bad smell is a special case
+        log('DataClass:')
+        yes_setget, no_setget = data_class_queries()
+        for cn in query_to_set(yes_setget) - query_to_set(no_setget):
+            log(f"  {cn} :: ()")
 
+        # the rest of the bad smells
+        for name, query in queries().items():
             log(name + ':')
 
             result = rdfquery(query)
@@ -173,13 +180,18 @@ def queries():
     HAVING (COUNT(*) >= 5)
     ORDER BY DESC(COUNT(*))
     """
-        , 'DataClass': """
+
+    }
+
+
+def data_class_queries():
+    return ["""
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     PREFIX tree: <http://usi.ch/giacomelli/Knowledge_Analysis_and_Management.owl#>
-    SELECT ?cn (COUNT(*) AS ?tot) WHERE {
+    SELECT distinct ?cn WHERE {
                 ?c a tree:ClassDeclaration .
                 ?c tree:jname ?cn .
                 ?c tree:body ?m .
@@ -187,12 +199,23 @@ def queries():
                 ?m tree:jname ?mn .
                 FILTER regex(?mn, "^get.*|^set.*")
             }
-    
-    GROUP BY ?cn
-    HAVING (COUNT(*)  > 0)
-    ORDER BY DESC(COUNT(*))
-        """
-    }
+    """, """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX owl: <http://www.w3.org/2002/07/owl#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        PREFIX tree: <http://usi.ch/giacomelli/Knowledge_Analysis_and_Management.owl#>
+        SELECT distinct ?cn WHERE {
+                    ?c a tree:ClassDeclaration .
+                    ?c tree:jname ?cn .
+                    ?c tree:body ?m .
+                    ?m a tree:MethodDeclaration .
+                    ?m tree:jname ?mn .
+                    FILTER ( !EXISTS {
+                        FILTER regex(?mn, "^get.*|^set.*")
+                    } )
+                }
+    """]
 
 
 if __name__ == '__main__':
