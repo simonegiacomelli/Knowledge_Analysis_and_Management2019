@@ -1,15 +1,7 @@
-from glob import glob
-
 import javalang
 from owlready2 import *
 
 
-# TODO
-## make sure that all
-#  individuals are declared to be different by calling AllDifferent (otherwise counting is not possible during
-#  bad smell detection)
-
-# TODO refactoring in OOP?
 def params_to_str(method_declaration):
     res = ','.join([p.type.name for p in method_declaration.parameters])
     return res
