@@ -34,7 +34,6 @@ def main():
         print('Folder ', source_folder_path, 'not found')
         exit(0)
 
-    # source_files_path = [y for x in os.walk(source_folder_path) for y in glob(os.path.join(x[0], '*.java'))]
     source_files_path = [f for f in [os.path.join(source_folder_path, ent) for ent in os.listdir(source_folder_path)]
                          if os.path.isfile(f)]
     pp = PrettyPrint()
