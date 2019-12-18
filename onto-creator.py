@@ -38,6 +38,7 @@ class Analyzer(ast.NodeVisitor):
         if id == 'name':
             id = 'jname'
         bases = (ObjectProperty,) if id == 'body' or id == 'parameters' else (DataProperty,)
+        print(f'  Creating {id} {bases}')
         with self.onto:
             types.new_class(id, bases)
 
