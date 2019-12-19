@@ -11,14 +11,14 @@ def rdfquery(query):
     return g.query(q)
 
 
-def get(d, name):
-    if name in d.labels:
-        return d[name]
+def get(dictionary, fieldname):
+    if fieldname in dictionary.labels:
+        return dictionary[fieldname]
     return ''
 
 
-def query_to_set(q):
-    return {r.cn for r in rdfquery(q)}
+def query_to_set(query):
+    return {r.cn for r in rdfquery(query)}
 
 
 def main():
@@ -33,13 +33,11 @@ def main():
         for cn in query_to_set(yes_setget) - query_to_set(no_setget):
             log(f"  {cn} :: ()")
         log()
-        
+
         # the rest of the bad smells
         for name, query in queries().items():
             log(name + ':')
-
-            result = rdfquery(query)
-            for r in result:
+            for r in rdfquery(query):
                 log(f"  {get(r, 'cn')} :: {get(r, 'mn')} ({get(r, 'tot')})")
             log()
 
